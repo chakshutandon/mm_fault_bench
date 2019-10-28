@@ -96,7 +96,7 @@ int main() {
     del_time = TestPageFaultLatency();
     printf("Page Fault Latency: %f ns\n", del_time);
 
-    TestMultiPageAllocLatency();
+    del_time = TestMultiPageAllocLatency();
     printf("Page Fault Latency (%d allocations): %f ns\n", N_PAGES, del_time);
 
     return 0;
