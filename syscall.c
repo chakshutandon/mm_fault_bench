@@ -81,7 +81,7 @@ int main() {
     printf("[System Call] hello_kernel(): %f ns\n", del_time);
 
     del_time = TestMultiPageAllocSyscallLatency();
-    printf("[System Call] hello_kernel(): %f ns\n", del_time);
+    printf("[System Call] multi_page_alloc(): %f ns\n", del_time);
 
     return 0;
 }
