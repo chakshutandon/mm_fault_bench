@@ -15,18 +15,17 @@
 
 #define MAX_LEN 2*GB
 
-// On page fault, instead of allocating a single physical page allocate N_PAGES.
-#define N_PAGES 4
+#define MAX_N_PAGES 256
 
 #define timeit(function, iter)                              \
     struct timespec start, end;                             \
     unsigned long long i;                                   \
                                                             \
-    clock_gettime(CLOCK_MONOTONIC, &start);                 \
+    clock_gettime(CLOCK_REALTIME, &start);                 \
     for (i = 0; i < iter; i++) {                            \
         function;                                           \
     }                                                       \
-    clock_gettime(CLOCK_MONOTONIC, &end);                   \
+    clock_gettime(CLOCK_REALTIME, &end);                   \
 
 long double delta_time(struct timespec start, struct timespec end) {
     return BILLION * (end.tv_sec - start.tv_sec) + (end.tv_nsec - start.tv_nsec);
@@ -72,10 +71,10 @@ double TestPageFaultLatency() {
     return delta_time(start, end) / N_ITER;
 }
 
-double TestMultiPageAllocLatency() {
+double TestMultiPageAllocLatency(unsigned int n_pages) {
     double del_time;
 
-    if (multi_page_alloc(N_PAGES)) {
+    if (multi_page_alloc(n_pages)) {
         perror("sys_multi_page_alloc");
         exit(EXIT_FAILURE);
     }
@@ -96,8 +95,12 @@ int main() {
     del_time = TestPageFaultLatency();
     printf("Page Fault Latency: %f ns\n", del_time);
 
-    del_time = TestMultiPageAllocLatency();
-    printf("Page Fault Latency (%d allocations): %f ns\n", N_PAGES, del_time);
+    unsigned int n_pages;
+    // On page fault, instead of allocating a single physical page allocate n_pages.
+    for (n_pages = 2; n_pages < MAX_N_PAGES; n_pages*=2) {
+        del_time = TestMultiPageAllocLatency(n_pages);
+        printf("Page Fault Latency (%d allocations): %f ns\n", n_pages, del_time);
+    }
 
     return 0;
 }
