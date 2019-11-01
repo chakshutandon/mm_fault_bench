@@ -50,6 +50,7 @@ double TestHelloKernelSyscallLatency() {
     syscall(__x64_sys_hello_kernel);
     if (errno == ENOSYS) {
         perror("__x64_sys_hello_kernel");
+        printf("See https://gitlab.com/chakshutandon/linux-stable/commit/c5d3d0fba71a0ae0d66e9ff6c5f902976089b335\n");
         exit(EXIT_FAILURE);
     }
 
@@ -61,6 +62,7 @@ double TestMultiPageAllocSyscallLatency() {
     syscall(__x64_sys_multi_page_alloc, 1);
     if (errno == ENOSYS) {
         perror("__x64_sys_multi_page_alloc");
+        printf("See https://gitlab.com/chakshutandon/linux-stable/commit/c5d3d0fba71a0ae0d66e9ff6c5f902976089b335\n");
         exit(EXIT_FAILURE);
     }
 

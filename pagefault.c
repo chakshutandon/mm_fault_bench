@@ -92,6 +92,7 @@ double TestMultiPageAllocLatency(unsigned int n_pages, int random) {
 
     if (multi_page_alloc(n_pages)) {
         perror("sys_multi_page_alloc");
+        printf("See https://gitlab.com/chakshutandon/linux-stable/commit/c5d3d0fba71a0ae0d66e9ff6c5f902976089b335\n");
         exit(EXIT_FAILURE);
     }
 
