@@ -21,11 +21,11 @@
     struct timespec start, end;                             \
     unsigned long long i;                                   \
                                                             \
-    clock_gettime(CLOCK_REALTIME, &start);                 \
+    clock_gettime(CLOCK_REALTIME, &start);                  \
     for (i = 0; i < iter; i++) {                            \
         function;                                           \
     }                                                       \
-    clock_gettime(CLOCK_REALTIME, &end);                   \
+    clock_gettime(CLOCK_REALTIME, &end);                    \
 
 long double delta_time(struct timespec start, struct timespec end) {
     return BILLION * (end.tv_sec - start.tv_sec) + (end.tv_nsec - start.tv_nsec);
