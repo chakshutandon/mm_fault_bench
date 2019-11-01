@@ -125,6 +125,7 @@ int main() {
     del_time = TestPageFaultLatency(1);
     printf("Page Fault Latency: %f ns\n", del_time);
 
+    // On page fault, instead of allocating a single physical page allocate n_pages.
     for (n_pages = 2; n_pages < MAX_N_PAGES; n_pages*=2) {
         del_time = TestMultiPageAllocLatency(n_pages, 1);
         printf("Page Fault Latency (%d allocations): %f ns\n", n_pages, del_time);
