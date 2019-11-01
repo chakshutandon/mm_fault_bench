@@ -106,6 +106,8 @@ double TestMultiPageAllocLatency(unsigned int n_pages, int random) {
 int main() {
     double del_time;
 
+    printf("** NOTE: Make sure to run this benchmark a few times to get accurate results. **\n");
+
     del_time = TestPageExistsLatency();
     printf("Inter-Page Latency: %f ns\n", del_time);
 
