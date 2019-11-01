@@ -72,11 +72,18 @@ double TestPageFaultLatency(int random) {
     }
     else {
         int idx[N_ITER];
+        int j, k, temp;
 
+        srand(time(NULL));
         // Generate random access pattern
-        int j;
         for (j = 0; j < N_ITER; j++) {
-            idx[j] = rand() % (N_ITER);
+            idx[j] = j;
+        }
+        for (j = 0; j < N_ITER; j++) {
+            temp = idx[j];
+            k = rand() % N_ITER;
+            idx[j] = idx[k];
+            idx[k] = temp;
         }
 
         timeit(offset = PAGE_SIZE * idx[i]; arr[offset] = 1, N_ITER);
