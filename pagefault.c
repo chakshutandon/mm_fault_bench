@@ -53,9 +53,10 @@ double TestPageExistsLatency() {
     return delta_time(start, end) / PAGE_SIZE;
 }
 
-double TestPageFaultLatency() {
+double TestPageFaultLatency(int random) {
+    double res = 0;
     unsigned long long offset;
-
+    
     char *arr = mmap(NULL, MAX_LEN, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
     if (arr == MAP_FAILED) {
 		perror("mmap");
@@ -65,13 +66,28 @@ double TestPageFaultLatency() {
     long PAGE_SIZE = sysconf(_SC_PAGE_SIZE);
     unsigned long N_ITER = MAX_LEN / PAGE_SIZE;
 
-	timeit(offset = PAGE_SIZE * i; arr[offset] = 1, N_ITER);
+    if (!random) {
+        timeit(offset = PAGE_SIZE * i; arr[offset] = 1, N_ITER);
+        res = delta_time(start, end) / N_ITER;
+    }
+    else {
+        int idx[N_ITER];
+
+        // Generate random access pattern
+        int j;
+        for (j = 0; j < N_ITER; j++) {
+            idx[j] = rand() % (N_ITER);
+        }
+
+        timeit(offset = PAGE_SIZE * idx[i]; arr[offset] = 1, N_ITER);
+        res = delta_time(start, end) / N_ITER;
+    }
 
     munmap(arr, MAX_LEN);
-    return delta_time(start, end) / N_ITER;
+    return res;
 }
 
-double TestMultiPageAllocLatency(unsigned int n_pages) {
+double TestMultiPageAllocLatency(unsigned int n_pages, int random) {
     double del_time;
 
     if (multi_page_alloc(n_pages)) {
@@ -79,7 +95,7 @@ double TestMultiPageAllocLatency(unsigned int n_pages) {
         exit(EXIT_FAILURE);
     }
 
-    del_time = TestPageFaultLatency();
+    del_time = TestPageFaultLatency(random);
 
     // Revert to normal page allocation
     multi_page_alloc(1);
@@ -90,15 +106,27 @@ int main() {
     double del_time;
 
     del_time = TestPageExistsLatency();
-    printf("Page Latency: %f ns\n", del_time);
-  
-    del_time = TestPageFaultLatency();
+    printf("Inter-Page Latency: %f ns\n", del_time);
+
+    printf("--- Sequential Access ---\n");
+
+    del_time = TestPageFaultLatency(0);
     printf("Page Fault Latency: %f ns\n", del_time);
 
     unsigned int n_pages;
     // On page fault, instead of allocating a single physical page allocate n_pages.
     for (n_pages = 2; n_pages < MAX_N_PAGES; n_pages*=2) {
-        del_time = TestMultiPageAllocLatency(n_pages);
+        del_time = TestMultiPageAllocLatency(n_pages, 0);
+        printf("Page Fault Latency (%d allocations): %f ns\n", n_pages, del_time);
+    }
+
+    printf("--- Random Access ---\n");
+
+    del_time = TestPageFaultLatency(1);
+    printf("Page Fault Latency: %f ns\n", del_time);
+
+    for (n_pages = 2; n_pages < MAX_N_PAGES; n_pages*=2) {
+        del_time = TestMultiPageAllocLatency(n_pages, 1);
         printf("Page Fault Latency (%d allocations): %f ns\n", n_pages, del_time);
     }
 
